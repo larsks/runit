@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/reboot.h>
 #include <sys/ioctl.h>
@@ -40,6 +41,13 @@ void sig_int_handler (void) {
   write(selfpipe[1], "", 1);
 }
 void sig_child_handler (void) { write(selfpipe[1], "", 1); }
+
+int should_exit () {
+	char *flag;
+
+	flag = getenv("RUNIT_EXIT_ON_HALT");
+	return (flag != NULL) && (flag[0] == '1');
+}
 
 int main (int argc, const char * const *argv, char * const *envp) {
   const char * prog[2];
@@ -294,6 +302,9 @@ int main (int argc, const char * const *argv, char * const *envp) {
     if (ttyfd > 2) close(ttyfd);
   }
 
+  if (should_exit())
+	  goto exit;
+
 #ifdef RB_AUTOBOOT
   /* fallthrough stage 3 */
   strerr_warn2(INFO, "sending KILL signal to all processes...", 0);
@@ -341,6 +352,8 @@ int main (int argc, const char * const *argv, char * const *envp) {
 
   for (;;) sig_pause();
   /* not reached */
+
+exit:
   strerr_die2x(0, INFO, "exit.");
   return(0);
 }
