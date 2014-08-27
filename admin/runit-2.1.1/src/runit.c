@@ -294,6 +294,9 @@ int main (int argc, const char * const *argv, char * const *envp) {
     if (ttyfd > 2) close(ttyfd);
   }
 
+  if ((stat(EXITINIT, &s) != -1) && (s.st_mode & S_IXUSR))
+	  goto exit;
+
 #ifdef RB_AUTOBOOT
   /* fallthrough stage 3 */
   strerr_warn2(INFO, "sending KILL signal to all processes...", 0);
@@ -341,6 +344,8 @@ int main (int argc, const char * const *argv, char * const *envp) {
 
   for (;;) sig_pause();
   /* not reached */
+
+exit:
   strerr_die2x(0, INFO, "exit.");
   return(0);
 }

@@ -8,7 +8,7 @@
 #include "open.h"
 #include "error.h"
 
-#define USAGE " 0|6"
+#define USAGE " 0|6|x"
 #define FATAL "init: fatal: "
 /* #define WARNING "init: warning: " */
 
@@ -21,6 +21,9 @@ void runit_halt () {
     strerr_die4sys(111, FATAL, "unable to create ", STOPIT, ": ");
   if (chmod(STOPIT, 0100) == -1)
     strerr_die4sys(111, FATAL, "unable to chmod ", STOPIT, ": ");
+  if (chmod(EXITINIT, 0) == -1)
+    if (errno != error_noent)
+      strerr_die4sys(111, FATAL, "unable to chmod ", EXITINIT, ": ");
   if (chmod(REBOOT, 0) == -1)
     if (errno != error_noent)
       strerr_die4sys(111, FATAL, "unable to chmod ", REBOOT, ": ");
@@ -37,6 +40,25 @@ void runit_reboot () {
     strerr_die4sys(111, FATAL, "unable to create ", REBOOT, ": ");
   if (chmod(REBOOT, 0100) == -1)
     strerr_die4sys(111, FATAL, "unable to chmod ", REBOOT, ": ");
+  if (chmod(EXITINIT, 0) == -1)
+    if (errno != error_noent)
+      strerr_die4sys(111, FATAL, "unable to chmod ", EXITINIT, ": ");
+  kill(1, sig_cont);
+  _exit(0);
+}
+
+void runit_exit () {
+  if (open_trunc(STOPIT) == -1)
+    strerr_die4sys(111, FATAL, "unable to create ", STOPIT, ": ");
+  if (chmod(STOPIT, 0100) == -1)
+    strerr_die4sys(111, FATAL, "unable to chmod ", STOPIT, ": ");
+  if (open_trunc(EXITINIT) == -1)
+    strerr_die4sys(111, FATAL, "unable to create ", EXITINIT, ": ");
+  if (chmod(EXITINIT, 0100) == -1)
+    strerr_die4sys(111, FATAL, "unable to chmod ", EXITINIT, ": ");
+  if (chmod(REBOOT, 0) == -1)
+    if (errno != error_noent)
+      strerr_die4sys(111, FATAL, "unable to chmod ", REBOOT, ": ");
   kill(1, sig_cont);
   _exit(0);
 }
@@ -65,6 +87,8 @@ int main (int argc, const char * const *argv, char * const *envp) {
   case '6':
     runit_reboot();
     break;
+  case 'x':
+    runit_exit();
   case '-':
     if ((*argv)[1] == 'V')
       strerr_warn1("$Id$\n", 0);
