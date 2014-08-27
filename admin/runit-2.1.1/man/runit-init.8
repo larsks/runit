@@ -3,7 +3,7 @@
 init \- a UNIX process no 1
 .SH SYNOPSIS
 .B init
-[ 0 | 6 ]
+[ 0 | 6 | x ]
 .SH DESCRIPTION
 .B runit-init
 is the first process the kernel starts.
@@ -17,7 +17,9 @@ If
 is started while the system is up, it must be either called as
 .B init 0
 or
-.B init 6\fR:
+.B init 6
+or
+.B init x\fR:
 .TP
 .B init 0
 tells the Unix process no 1 to shutdown and halt the system.
@@ -44,6 +46,18 @@ sets the execute by owner permission of the files
 and
 .I /etc/runit/stopit
 (chmod 100). Then a CONT signal is sent to
+.BR runit (8).
+.TP
+.B init x
+tells the Unix process no 1 to exit.  To signal
+.BR runit (8)
+the exit request,
+.B runit-init
+sets the execute by owner permission of the files
+.I /etc/runit/exit
+and
+.I /etc/runit.stopit
+(chmod 100).  Then a CONT signal is sent to 
 .BR runit (8).
 .SH EXIT CODES
 .B runit-init

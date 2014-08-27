@@ -45,9 +45,12 @@ done here.
 If stage 3 returns,
 .B runit
 checks if the file
-.I /etc/runit/reboot
+.I /etc/runit/exit
 exists and has the execute by owner permission set.
-If so, the system is rebooted, it's halted otherwise.
+If so, the runit process exits.  If the file
+.I /etc/runit/reboot
+exists and has the execute by owner permission set, the system
+will reboot.  Otherwise, the system halts.
 .SH CTRL-ALT-DEL
 If
 .B runit
